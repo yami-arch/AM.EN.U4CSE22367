@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://20.244.56.144/evaluation-service';
+const BASE_URL = '/evaluation-service';
 
 const credentials = {
   email: "nikhil.mishra6575@gmail.com",
@@ -11,13 +11,42 @@ const credentials = {
   clientSecret: "JGgPcuQDbEKnPkcA"
 };
 
+let accessToken = null;
+let tokenExpiry = null;
+
 const getAccessToken = async () => {
   try {
-    const response = await axios.post(`${BASE_URL}/auth`, credentials);
-    return response.data.access_token;
+    // Check if we have a valid token
+    if (accessToken && tokenExpiry && new Date() < tokenExpiry) {
+      return accessToken;
+    }
+
+    console.log('Requesting new access token...');
+    const response = await axios.post(`${BASE_URL}/auth`, credentials, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('Auth response:', response.data);
+    
+    if (!response.data || !response.data.access_token) {
+      throw new Error('Invalid auth response: No access token received');
+    }
+
+    // Store the token and set expiry to 1 hour from now
+    accessToken = response.data.access_token;
+    tokenExpiry = new Date(Date.now() + 3600000); // 1 hour
+    return accessToken;
   } catch (error) {
-    console.error('Error getting access token:', error.message);
-    throw error;
+    console.error('Auth Error Details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      headers: error.response?.headers
+    });
+    throw new Error(`Authentication failed: ${error.message}`);
   }
 };
 
@@ -27,7 +56,9 @@ const createAxiosInstance = (token) => {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
+      'Accept': 'application/json'
     },
+    timeout: 10000, // 10 second timeout
   });
 };
 

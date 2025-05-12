@@ -38,15 +38,18 @@ const StockSelector = ({ value, onChange }) => {
         setLoading(true);
         setError(null);
         const response = await getStocks();
+        console.log('Stocks API Response:', response);
         if (response && response.stocks) {
           setStockOptions(response.stocks);
           if (!value && Object.values(response.stocks).length > 0) {
             onChange(Object.values(response.stocks)[0]);
           }
         } else {
+          console.log('Using fallback stocks');
           setStockOptions(fallbackStocks);
         }
       } catch (error) {
+        console.error('Error fetching stocks:', error);
         setStockOptions(fallbackStocks);
       } finally {
         setLoading(false);
@@ -57,24 +60,45 @@ const StockSelector = ({ value, onChange }) => {
 
   useEffect(() => {
     const fetchPriceHistory = async () => {
-      if (!value) return;
+      if (!value) {
+        console.log('No stock selected, skipping price history fetch');
+        return;
+      }
       
       try {
         setLoadingHistory(true);
+        setError(null);
         console.log('Fetching price history for:', value);
         const history = await getStockPriceHistory(value);
-        console.log('Received price history:', history);
+        console.log('Raw price history response:', history);
         
-        // Process the data to ensure it's in the correct format
-        const processedHistory = Array.isArray(history) ? history : 
-          (history.data ? history.data : 
-          (history.prices ? history.prices : []));
-            
+        // Handle different possible response formats
+        let processedHistory = [];
+        if (Array.isArray(history)) {
+          processedHistory = history;
+        } else if (history && typeof history === 'object') {
+          if (Array.isArray(history.data)) {
+            processedHistory = history.data;
+          } else if (Array.isArray(history.prices)) {
+            processedHistory = history.prices;
+          } else {
+            console.error('Unexpected history format:', history);
+            setError('Invalid price history data format');
+            return;
+          }
+        }
+
         console.log('Processed price history:', processedHistory);
-        setPriceHistory(processedHistory);
+        
+        if (processedHistory.length === 0) {
+          setError('No price history data available');
+        } else {
+          setPriceHistory(processedHistory);
+        }
       } catch (error) {
         console.error('Error fetching price history:', error);
-        setError('Failed to load price history');
+        setError(`Failed to load price history: ${error.message}`);
+        setPriceHistory([]);
       } finally {
         setLoadingHistory(false);
       }
@@ -134,19 +158,19 @@ const StockSelector = ({ value, onChange }) => {
             <LineChart data={priceHistory}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
-                dataKey="timestamp" 
+                dataKey="lastUpdatedAt" 
                 tickFormatter={(timestamp) => new Date(timestamp).toLocaleTimeString()}
               />
               <YAxis domain={['auto', 'auto']} />
               <Tooltip 
                 labelFormatter={(timestamp) => new Date(timestamp).toLocaleString()}
-                formatter={(value) => [`$${value}`, 'Price']}
+                formatter={(value) => [`$${value.toFixed(2)}`, 'Price']}
               />
               <Line 
                 type="monotone" 
                 dataKey="price" 
                 stroke="#8884d8" 
-                dot={false}
+                dot={true}
                 isAnimationActive={false}
               />
             </LineChart>
