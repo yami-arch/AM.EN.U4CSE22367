@@ -101,3 +101,37 @@ export const getStockPriceHistory = async (ticker, minutes = 30) => {
     throw error;
   }
 };
+
+export const getAllStockPrices = async (minutes = 30) => {
+  try {
+    const token = await getAccessToken();
+    const axiosInstance = createAxiosInstance(token);
+    console.log('Fetching all stock prices...');
+    
+    // First get the list of stocks
+    const stocksResponse = await axiosInstance.get('/stocks');
+    const stocks = stocksResponse.data.stocks;
+    
+    // Then fetch price history for each stock
+    const pricePromises = Object.values(stocks).map(ticker => 
+      axiosInstance.get(`/stocks/${ticker}?minutes=${minutes}`)
+        .then(response => ({
+          ticker,
+          prices: response.data
+        }))
+        .catch(error => {
+          console.error(`Error fetching prices for ${ticker}:`, error);
+          return {
+            ticker,
+            prices: []
+          };
+        })
+    );
+
+    const results = await Promise.all(pricePromises);
+    return results;
+  } catch (error) {
+    console.error('Error fetching all stock prices:', error);
+    throw error;
+  }
+};

@@ -23,7 +23,7 @@ const StockPage = () => {
         const data = await getStockPriceHistory(selectedStock, interval);
         setPriceHistory(Array.isArray(data) ? data : [data]);
       } catch (err) {
-        setError('Failed to fetch price history. Please try again later.');
+        
         console.error('Error fetching price history:', err);
       } finally {
         setLoading(false);
