@@ -6,7 +6,7 @@ import StockChart from '../components/StockChart';
 import { getStockPriceHistory } from '../services/api';
 
 const StockPage = () => {
-  // Set initial stock to AAPL (Apple Inc.)
+ 
   const [selectedStock, setSelectedStock] = useState('AAPL');
   const [interval, setInterval] = useState(30);
   const [priceHistory, setPriceHistory] = useState([]);
@@ -33,7 +33,7 @@ const StockPage = () => {
   }, [selectedStock, interval]);
 
   const handleStockChange = (newStock) => {
-    console.log('Selected stock:', newStock); // Debug log
+    console.log('Selected stock:', newStock); 
     setSelectedStock(newStock);
   };
 

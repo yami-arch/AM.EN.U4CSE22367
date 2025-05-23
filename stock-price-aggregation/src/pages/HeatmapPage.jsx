@@ -28,9 +28,9 @@ const HeatmapPage = () => {
   }, []);
 
   const getColor = (correlation) => {
-    // Convert correlation (-1 to 1) to a color between red and green
-    const normalizedCorrelation = (correlation + 1) / 2; // Convert to 0-1 range
-    const hue = normalizedCorrelation * 120; // 0 is red, 120 is green
+   
+    const normalizedCorrelation = (correlation + 1) / 2; 
+    const hue = normalizedCorrelation * 120;
     return `hsl(${hue}, 70%, 50%)`;
   };
 
@@ -71,15 +71,15 @@ const HeatmapPage = () => {
           gap: 1,
           mt: 2
         }}>
-          {/* Header row */}
+         
           <Box sx={{ p: 1, fontWeight: 'bold' }}></Box>
           {correlationData.tickers.map(ticker => (
-            <Box key={ticker} sx={{ p: 1, fontWeight: 'bold', textAlign: 'center' }}>
+            <Box sx={{ p: 1, fontWeight: 'bold', textAlign: 'center' }}>
               {ticker}
             </Box>
           ))}
 
-          {/* Matrix cells */}
+          
           {correlationData.matrix.map((row, i) => (
             <React.Fragment key={correlationData.tickers[i]}>
               <Box sx={{ p: 1, fontWeight: 'bold' }}>

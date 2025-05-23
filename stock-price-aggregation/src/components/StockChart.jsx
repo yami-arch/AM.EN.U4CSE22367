@@ -19,10 +19,10 @@ const StockChart = ({ data, loading, stock }) => {
     );
   }
 
-  // Calculate average price
+ 
   const average = data.reduce((sum, item) => sum + item.price, 0) / data.length;
 
-  // Format the data for the chart
+ 
   const chartData = data.map(item => ({
     ...item,
     time: new Date(item.lastUpdatedAt).toLocaleTimeString(),

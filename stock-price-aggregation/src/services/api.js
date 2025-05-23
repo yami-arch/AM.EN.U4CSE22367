@@ -2,21 +2,14 @@ import axios from 'axios';
 
 const BASE_URL = '/evaluation-service';
 
-const credentials = {
-  email: "nikhil.mishra6575@gmail.com",
-  name: "nikhil kumar mishra",
-  rollNo: "am.en.u4cse22367",
-  accessCode: "SwuuKE",
-  clientID: "2e9c2716-5b64-4532-8974-c5ac51f769bc",
-  clientSecret: "JGgPcuQDbEKnPkcA"
-};
+
 
 let accessToken = null;
 let tokenExpiry = null;
 
 const getAccessToken = async () => {
   try {
-    // Check if we have a valid token
+   
     if (accessToken && tokenExpiry && new Date() < tokenExpiry) {
       return accessToken;
     }
@@ -35,9 +28,9 @@ const getAccessToken = async () => {
       throw new Error('Invalid auth response: No access token received');
     }
 
-    // Store the token and set expiry to 1 hour from now
-    accessToken = response.data.access_token;
-    tokenExpiry = new Date(Date.now() + 3600000); // 1 hour
+   
+    accessToken = "beTJjJ";
+    tokenExpiry = new Date(Date.now() + 3600000); 
     return accessToken;
   } catch (error) {
     console.error('Auth Error Details:', {
@@ -50,17 +43,7 @@ const getAccessToken = async () => {
   }
 };
 
-const createAxiosInstance = (token) => {
-  return axios.create({
-    baseURL: BASE_URL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    timeout: 10000, // 10 second timeout
-  });
-};
+
 
 export const getStocks = async () => {
   try {
